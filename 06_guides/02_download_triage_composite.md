@@ -1,20 +1,88 @@
 # Walkthrough 2 — One month of daytime COMO images, triage, composite slice
 
-**Goal:** retrieve an approximately one-month midday sequence (e.g., June 1–30, 2025; verify available dates at the provider), quality-control, and build a chronological composite slice image. Exact date range is a demo example, not confirmation that imagery is available throughout that interval.
 
-1. Start GRIME-AI. Open **Retrieve Data → NEON Sites** and locate **COMO / Como Creek**. Expand site details to confirm site ID.
-2. In **Download Manager**, select the camera/imagery product (if multiple site products are listed, choose the visible-light stream containing the staff gage). Set start **2025-06-01** and end **2025-06-30**.
-3. Set the time-of-day filter to **11:00–13:00** in the provider/displayed timezone, then verify the saved image timestamps. Where timestamps are UTC rather than local time, adjust the window to correspond to local noon; avoid assuming 12:00 UTC is local noon.
-4. Browse to a dedicated output directory, e.g. `05_outputs/downloaded_June2025/`. Click **Download** and inspect the resulting folder; if empty, choose a confirmed available month and document the substitution. For a one-image-per-day demonstration, retain the timestamp closest to midday for each date.
-5. Open **Data Exploration** and set the **Images Folder** path to the downloaded directory. Click **Fetch Image List**. Check that previews are valid and chronologically sorted.
-6. Open **Image Triage** (navigation button, Data Exploration, or Tools menu). Point it at the downloaded images. Enable **Generate Report** and **Move Bad Images**; optionally **Save Polylines**. Run triage.
-7. Open the triage CSV; note total, accepted, and removed images and rejection reasons (blur, low contrast, bad exposure, etc.). Review a few rejected images to ensure the criteria are not too aggressive. Move Bad Images sequesters files instead of deleting them; do not overwrite your raw archive.
-8. Set the Data Exploration image folder to the **accepted** images only, run **Fetch Image List** again and inspect chronological ordering.
-9. Click **Composite Slice**. In the preview, position the vertical slice over the staff-gage/stream region (or center as a first pass). Choose a thin slice width, initially **5–10 pixels** as a demonstration setting (not a documented software default).
-10. Click **Generate** and save/export the resulting composite under `05_outputs/composite_slice/`, e.g. `COMO_June2025_noon_composite.png`.
-11. Inspect the composite: each strip represents an image timestamp, so ordering matters. Record source image count, dates, actual time window, slice x-position, slice width and number of skipped images in `05_outputs/composite_slice/README.txt`.
-12. Repeat with a slice centered on the stream if the gage region yields little temporal contrast. Keep both outputs and describe what changes in the scene over the month.
+1. Start **GRIME-AI**. The **NEON Sites** tab should be visible by default in the main interface. If another tab is open, navigate to **NEON Sites**. In the left panel, locate and click **COMO - Como Creek**. After a few seconds, the latest available image from the site will appear in the Latest Site Image panel. The displayed image should look similar to the staff-gage images used in the model training dataset.
 
-**Participant success criteria:** about 1 month of valid imagery (or an explicitly documented alternate month), triage CSV, segregated bad images, chronological accepted set, at least one saved composite slice image.
+   <p align="center">
+     <img src="./graphics/download_1.png" alt="GRIME-AI NEON Sites interface" width="100%">
+   </p>
 
-References: https://github.com/GRIME-Lab/GRIME-AI/wiki/02-Data-Retrieval and https://github.com/GRIME-Lab/GRIME-AI/wiki/03-Data-Preparation
+2. Under **COMO - Como Creek**, click the small arrow next to **Data products (51)** to expand the list of available data products. Locate **DP1.20002.001 — Land-water interface images** and check the box beside it to select the imagery product. Once selected, the product will appear in the table at the bottom of the GRIME-AI window.
+
+   <p align="center">
+     <img src="./graphics/download_2.png" alt="COMO Creek data product selection" width="50%">
+   </p>
+
+3. In the bottom table, locate the row for **COMO — DP1.20002.001 Land-water interface images**. Under the **Start Date** and **End Date** columns, set the **Start Date** to `2025-06-01` and the **End Date** to `2025-06-30` to download one month of imagery. Make sure you are modifying the COMO product row rather than the **All checked products** row.
+
+4. Under the **Time Window** column for the COMO product, set the time range to **11:50–12:05** to retrieve images captured around noon.
+
+5. At the bottom-right corner of the window, click **Browse** to select the destination folder for the downloaded images. For this example, navigate to the repository and select `05_outputs/` as the output directory.
+
+   <p align="center">
+     <img src="./graphics/download_3.png" alt="COMO imagery download configuration" width="100%">
+   </p>
+
+6. Once everything is configured, click **Download** in the bottom-right corner and wait for the download process to complete.
+
+7. Navigate to `05_outputs/` and locate the newly downloaded COMO imagery folder. Open the folder and verify that the images were downloaded successfully.
+
+8. In the main **GRIME-AI** window, click the **Folder icon** <img src="./graphics/data_1.png" alt="Data Exploration icon" width="4%"> located at the top-left corner to open the **Data Exploration** window.
+
+9. Under **Images Folder**, click **Browse** and navigate to the folder containing the downloaded images (e.g., `05_outputs/Images/`). Select the folder to load its path into the **Images Folder** field.
+
+10. Click **Fetch Image List** to load the images from the selected directory. This will open a new **Image Navigation** window showing the retrieved images. Confirm that the images have loaded successfully.
+
+   <p align="center">
+     <img src="./graphics/data_2.png" alt="Data Exploration window" width="100%">
+   </p>
+
+11. Once the **Image Navigation** window is open, return to the **Data Exploration** window. If needed, move the **Image Navigation** window aside so you can access the buttons in **Data Exploration**. Then click **Image Triage**.
+
+12. A confirmation window will appear with the message **"You are about to perform Image Triage. Would you like to continue?"**. Click **Yes** to proceed.
+
+13. Another window will appear asking you to select the image folder. Navigate to `05_outputs/Images/`, which contains the images downloaded in the previous steps. Select this folder to continue.
+
+14. Then the **Image Triage Options** window will open. Leave all settings at their default values, ensure **Generate report** is checked, and click **OK** to start the image triage process.
+
+<p align="center">
+     <img src="./graphics/data_3.png" alt="Image Navigation window after fetching images" width="100%">
+   </p>
+
+15. Wait for the image triage process to finish. When complete, a confirmation window will appear indicating that image triage is complete.
+
+   <p align="center">
+     <img src="./graphics/data_4.png" alt="Image triage complete message" width="35%">
+   </p>
+
+16. Navigate back to the selected downloaded image folder. Confirm that image triage generated three output files in that folder: a **CSV report**, an **Excel report**, and a **settings JSON** file.
+
+   <p align="center">
+     <img src="./graphics/data_5.png" alt="Generated image triage output files" width="80%">
+   </p>
+
+
+## Part C — Generate a Composite Slice Image
+
+1. Return to the **Data Exploration** window and click **Composite Slice**. This will open a new window titled **Select Features**, displaying a sample image from the selected image collection.
+
+2. In the **Select Features** window, you will see a vertical highlighted slice overlaid on the image. This slice represents the portion of each image that will be extracted to generate the composite slice image.
+
+   <p align="center">
+     <img src="./graphics/data_6.png" alt="Composite Slice feature selection window" width="80%">
+   </p>
+3. Use the **Position** slider at the top of the window to move the vertical slice across the image. Try moving the slider left and right to verify that the slice position changes correctly.
+
+4. Adjust the slice width using the **Narrower / Wider** control. Try increasing and decreasing the width to confirm that the highlighted slice becomes wider or narrower. You can also enter values manually in the corresponding fields.
+
+5. Once you have confirmed that both controls are working, choose your preferred slice position and width, then click **Generate** to create the composite slice image.
+
+6. Monitor the **GRIME-AI terminal**, which will display information about the composite generation process, including the number of images processed, the composite image width, and the location where the generated image is saved.
+
+7. Look for the **Composite Filename** in the terminal output. This shows the full path to the generated composite image. Navigate to that location using File Explorer. For example, the output may be saved in:
+
+   `C:\Users\<YourUsername>\Documents\GRIME-AI\composite_slices\`
+
+8. Locate the generated **CompositeImage** `.jpg` file and open it to verify that the composite slice image was successfully created and can be viewed.
+
+**PASS:** The **Position** slider and **Narrower / Wider** controls respond correctly, the composite slice image is generated without errors, and the saved image can be located and opened successfully.
