@@ -44,7 +44,7 @@
 3. Click **Fetch Image List** to load the images from the selected directory. This will open a new **Image Navigation** window showing the retrieved images. Confirm that the images have loaded successfully.
 
    <p align="center">
-     <img src="./graphics/data_2.png" alt="Data Exploration window" width="100%">
+     <img src="./graphics/data_2.png" alt="Data Exploration window" width="60%">
    </p>
 
 4. Once the **Image Navigation** window is open, return to the **Data Exploration** window. If needed, move the **Image Navigation** window aside so you can access the buttons in **Data Exploration**. Then click **Image Triage**.
@@ -56,7 +56,7 @@
 7. Then the **Image Triage Options** window will open. Leave all settings at their default values, ensure **Generate report** is checked, and click **OK** to start the image triage process.
 
    <p align="center">
-     <img src="./graphics/data_3.png" alt="Image Triage Options window" width="100%">
+     <img src="./graphics/data_3.png" alt="Image Triage Options window" width="70%">
    </p>
 
 8. Wait for the image triage process to finish. When complete, a confirmation window will appear indicating that image triage is complete.
