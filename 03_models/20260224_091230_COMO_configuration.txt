@@ -1,0 +1,12 @@
+Site: COMO
+Learning Rates: [0.0001]
+Optimizer: Adam
+Loss Function: IOU
+Weight Decay: 0.01
+Number of Epochs: 30
+Save Model Frequency: 5
+Early Stopping: False
+Patience: 3
+Device: cuda
+Folders: None
+Annotations: None
