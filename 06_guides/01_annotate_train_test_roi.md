@@ -2,10 +2,6 @@
 
 **GRIME-AI pre-workshop system check — Missouri**
 
-**Goal:** Confirm that GRIME-AI can (1) open images in SAGE, (2) create and export one staff-gage annotation, (3) train a model using that new annotation and the supplied training data, (4) apply the model to images not used for training, and (5) run ROI Analyzer and save its results.
-
-**Estimated input:** The supplied example package, GRIME-AI installed on your computer, and enough free disk space for image outputs and model checkpoints. Training SAM2 is best tested on a CUDA-compatible NVIDIA GPU; CPU training may be very slow. The exact interface may vary slightly by installed GRIME-AI version.
-
 ## Part A — Annotate one image in SAGE
 
 1. In GRIME-AI, open **Tools → SAGE** (or launch `sage` from the activated Conda environment).
@@ -37,92 +33,75 @@
 
 ## Part B — Train a model with given datasets
 
-1. Return to GRIME-AI. Open **Deep Learning → Train Model**.
-2. In the input/dataset browser, choose the parent directory that allows GRIME-AI to find both the supplied `01_training_COCO/` dataset and the COCO dataset saved in `04_participant_annotations/`. Training-data folders must contain their annotation file and referenced images.
-3. Review **Available Image Folders**. Move the supplied training folder **and** your newly annotated folder into **Selected Image Folders** using **Move to Right**. If only one folder appears, inspect the paths and COCO export rather than silently training on just one.
+1. Return to GRIME-AI. Open **Deep Learning→ Train Model** by clicking the Brain icon <img src="./graphics/grime_1.png" alt="GRIME-AI Interface" width="3%">
 
-![Screenshot 07 — Training dataset folder selection](screenshots/Step_07.png)
-4. Click **Validate**. Resolve errors about missing images, unreadable annotations, or mismatched categories. You should be able to confirm that both datasets are included.
+2. In the `Enter folder path` browser, select the parent directory containing both the supplied `01_training_COCO/` dataset and the newly annotated dataset in `04_participant_annotations/`. Once you select the parent directory, both folders, 01_training_COCO and 04_participant_annotations/new_image, will automatically appear in the Available Image Folders panel on the left.
 
-![Screenshot 08 — Successful dataset validation](screenshots/Step_08.png)
+3. Under Available Image Folders, double-click the `01_training_COCO` folder to move it to the Selected Image Folders panel on the right. Alternatively, select 01_training_COCO and click `Move to Right`. Make sure the training folder appears under Selected Image Folders before proceeding.
+
+<img src="./graphics/grime_2.png" alt="GRIME-AI Interface" width="300">
+
+4. Click **Validate** to check the validity of the dataset.
+
+<img src="./graphics/grime_3.png" alt="GRIME-AI Interface" width="100">
+
 5. Under model architecture, select **SAM2**.
 6. Under **Label Selection**, select **`Staff`**.
-7. Set **Site Name** to something unique, for example `Missouri_Staff_SmokeTest`.
-8. For a short functionality test, set **Epochs = 8**. Leave learning rate, optimizer, weight decay, and other advanced options at their defaults unless instructed otherwise by the organizer. Use the default training/validation split and record it; the separate `02_test_images/` folder must remain excluded from training and validation.
+7. Set **Site Name** to something unique, for example `Missouri_Staff`.
+8. For a short functionality test, set **Number of Epochs = 20**. Leave learning rate, optimizer, weight decay, and other advanced options at their defaults.
+9. Click **Train** and monitor the training progress and application log. Wait for the run to finish successfully.
 
-![Screenshot 09 — SAM2 model training settings](screenshots/Step_09.png)
-9. Select **GPU/CUDA** if your system supports it. If you receive an out-of-memory error, reduce the **batch size** and retry. A CPU-only run may take substantially longer.
-10. Click **Train** and monitor the training progress and application log. Wait for the run to finish successfully.
+<img src="./graphics/grime_4.png" alt="GRIME-AI Interface" width="300">
 
-![Screenshot 10 — Training completion and checkpoint](screenshots/Step_10.png)
-11. Locate the saved model checkpoint and companion metadata using the path shown in GRIME-AI (often under your GRIME-AI Models directory). Optionally copy both to `03_models/` for easy reference.
-
-**PASS:** Dataset validation succeeds for both inputs, training finishes without an error, and a trained model file plus associated metadata exist.
-
-**If it fails:** Capture the error text and a screenshot. Check that both COCO dataset folders are valid, the `Staff` class is present, and your device has adequate memory.
+**PASS:** Dataset validation succeeds for both inputs, training finishes without an error and it is showing that model is saved in the terminal.
 
 ## Part C — Test the trained model on unseen images
 
-1. Open **Deep Learning → Segment Images**.
+1. Navigate to the **Segment Images** tab in the **Deep Learning** window. If you have closed the window, click the **Brain icon** to reopen it, just as you did for model training. If the window is still open, simply click the **Segment Images** tab located next to the **Train Model** tab at the top of the window.
 2. Select **SAM2** as the model architecture.
-3. Turn on **Save Predicted Masks**, **Copy Original Images**, and **Save Diagnostic Panels**, if these options are available in your version.
+3. Turn on **Save Predicted Masks**, **Save Probability Maps**, and **Save Diagnostic Panels**, if these options are available in your version.
 4. Leave the **SAM2 Spatial Filter** at its recommended default, generally **Mahalanobis**, for this first test.
-5. Under **Select Model → Browse**, choose the checkpoint you trained in Part B. Confirm its metadata loads and shows the `Staff` label.
+5. Under **Select Model → Browse**, navigate to the `03_models/` folder and select the pretrained model checkpoint named `best_1st_staff_epoch019_valloss0.1214_lr0.0001.torch`. Once selected, confirm that the model metadata loads correctly and displays the staff label in `Labels` panel.
 
-![Screenshot 11 — Segment Images model selection](screenshots/Step_11.png)
+<img src="./graphics/grime_5.png" alt="GRIME-AI Interface" width="300">
+
 6. Set **Output Folder** to `05_outputs/test_inference/`.
 7. Use **Add Folder** to select **only** `02_test_images/`. Do not add the training folder or the image newly annotated in Part A.
 
-![Screenshot 12 — Test image and output folder setup](screenshots/Step_12.png)
+<img src="./graphics/grime_6.png" alt="GRIME-AI Interface" width="300">
+
 8. In **Labels**, select **`Staff`**.
 9. Click **Segment Images**. Wait until processing is complete and check the application log for failures.
 
-![Screenshot 13 — Segmentation progress and outputs](screenshots/Step_13.png)
-10. Open the output folder. Confirm files were created for the processed test images. Examine at least three diagnostic panels or image/mask pairs (or all results if there are fewer than three).
+<img src="./graphics/grime_7.png" alt="GRIME-AI Interface" width="200">
 
-![Screenshot 14 — Predicted staff-gage mask example](screenshots/Step_14.png)
-11. For each checked image, confirm the mask is near the staff gage rather than covering unrelated objects. Record any missed gage or false detections. This is a **visual smoke test**, not a numerical accuracy assessment unless the test images have separate ground-truth masks.
+10. Open the output folder. Confirm files were created for the processed test images.
+
+<img src="./graphics/grime_8.png" alt="GRIME-AI Interface" width="200">
 
 **PASS:** Inference completes on images excluded from training, output files are saved, and the predicted masks can be opened and inspected.
 
-**If it fails:** Verify the model's companion metadata is present, the correct architecture is selected, the images are readable, and the output folder is writable.
-
 ## Part D — Test ROI Analyzer
 
-> **Interface check:** ROI Analyzer controls can vary by GRIME-AI build. The sequence below describes the required actions, not unverified button labels. If your build does not offer a named option, record the visible control and take a screenshot rather than guessing.
+1. Navigate to the **ROI Analyzer** tab in the **Deep Learning** window, located next to the **Segment Images** tab. If you have closed the window, click the **Brain icon** in the main GRIME-AI interface to reopen it.
 
-1. Return to the main GRIME-AI window and open **ROI Analyzer** from the analysis/exploration tools in your installed version.
-2. Load the image collection associated with `05_outputs/test_inference/`. If ROI Analyzer requires original images rather than prediction masks, load the **copied original images** from this output folder (or `02_test_images/`) and use mask outputs as a separate visual reference. Do not assume ROI Analyzer automatically imports segmentation masks.
+2. At the top of the **ROI Analyzer** tab, click **Browse** and navigate to `05_outputs/test_inference/`. Select the predictions folder generated during Part C (e.g., `20261029_152635_predictions`). The ROI Analyzer will load the segmentation results and display the images.
 
-![Screenshot 15 — ROI Analyzer image selection](screenshots/Step_15.png)
-3. Display the first image. Draw or define **one fixed rectangular or polygonal ROI** surrounding the staff-gage region, using the ROI creation control offered in your version.
-4. Name it `Staff_Gage_ROI` if your interface supports ROI naming, and **save/apply** the ROI definition.
+<p align="center">
+  <img src="./graphics/roi_1.png" alt="ROI Analyzer with loaded segmentation results" width="500">
+</p>
 
-![Screenshot 16 — Staff gage ROI definition](screenshots/Step_16.png)
-5. Move between the first, middle, and last images. Confirm that the same ROI stays aligned with the staff-gage location for a fixed camera. If the camera moved significantly, record that limitation.
-6. Select an available ROI measurement or feature (for example, mean pixel intensity or an available color/texture metric). Run the calculation across the loaded images.
+3. Review the displayed results. The **top-left panel** shows the original image, the **top-middle panel** shows the detected staff-gage region, and the **top-right panel** displays the segmentation prediction with the `STAFF` label. Confirm that the staff gage has been correctly identified.
 
-![Screenshot 17 — ROI analysis settings and run](screenshots/Step_17.png)
-7. Export or save the available result table, CSV, or figure to `05_outputs/roi_analysis/`. Record the precise output file and selected metric.
+4. Use the **image thumbnails** at the bottom to navigate between different images. Select atleast 3 images to verify that the model consistently detects the staff gage across the image collection.
 
-![Screenshot 18 — ROI Analyzer exported results](screenshots/Step_18.png)
-8. Open the saved result and verify that it is not empty and that its image count matches the processed collection, allowing for any explicitly skipped files.
+5. Review the **Metrics** panel on the left, which displays calculated image features, including Intensity (I), Entropy (E), Texture (T), GLI, GCC, GLCM Contrast, GLCM Homogeneity, and GLCM Correlation. As you navigate between images, verify that the displayed metric values update accordingly to reflect the selected image.
 
-**PASS:** ROI Analyzer loads images, accepts a saved ROI, runs a feature calculation across the collection, and saves a readable result.
+7. Click **Analyze** to run the analysis using the selected settings. The process should complete quickly, and you may not notice any visible changes in the interface. Once the analysis is complete, click **Extract ROI Features** to calculate and export the ROI feature values.
+<p align="center">
+  <img src="./graphics/roi_2.png" alt="ROI feature extraction options" width="200">
+</p>
 
-**Important:** A basic ROI measurement is not automatically a staff-gage water-level estimate. Do not interpret ROI pixel intensity or total predicted gage area as stage without additional calibration and waterline processing.
+8. Review the generated results and confirm that the ROI feature values have been successfully calculated. Navigate to the predictions folder inside `05_outputs/test_inference/` and open the **correlation** subfolder. Verify that the ROI analysis results have been saved in both **CSV (.csv) and Excel (.xlsx)** formats. Open either file to confirm that it contains the calculated feature values for the processed images.
 
-## Final pre-workshop checklist
-
-- [ ] GRIME-AI starts successfully. **Version:** __________
-- [ ] SAGE opens the selected image.
-- [ ] One `Staff` annotation is saved to COCO format.
-- [ ] Both supplied and newly created COCO datasets appear in training selection.
-- [ ] **Validate** completes without errors.
-- [ ] SAM2 training finishes. **Model/checkpoint path:** __________
-- [ ] Test inference runs on independent images. **Number of test images:** __________
-- [ ] Predicted masks/diagnostic panels are saved and visually inspected.
-- [ ] ROI Analyzer loads images and accepts a defined ROI.
-- [ ] ROI measurement is exported. **Result path:** __________
-
-**If anything fails:** Send the organizer (1) your GRIME-AI version, (2) the step number, (3) a screenshot of the application, and (4) the complete error message or relevant log excerpt. Do not send only “it isn't working.”
+**PASS:** ROI Analyzer successfully loads the segmentation predictions, displays the detected staff-gage regions, allows navigation between images, calculates image features, and produces ROI analysis results.
