@@ -1,33 +1,29 @@
-# Missouri GRIME-AI / NEON COMO starter package
-Prepared 2026-10-29. STATUS: documentation and empty folder scaffolding, NOT an operational trained-model bundle.
 
-## Start here
-1. Download the PEP2026 NEON COMO resource: https://www.hydroshare.org/resource/b161beb15b2d41029ac9f5347be35d40/
-2. Obtain or extract the staff-gage COCO image+annotation dataset into `01_training_COCO/`. Keep the image filenames/paths aligned with the COCO JSON.
-3. Select independent, unannotated, non-overlapping COMO images and copy them to `02_test_images/`.
-4. Follow `06_guides/01_annotate_train_test_roi.md` for the SAGE/model workflow.
-5. Follow `06_guides/02_download_triage_composite.md` for the month-of-noon-images workflow.
-6. Place trained model and companion metadata in `03_models/`, and outputs in `05_outputs/`.
+# Missouri GRIME-AI — COMO Starter Package
 
-### Important status and provenance
-The HydroShare site is public and identifies a ~1.6 GB COMO resource, but its file inventory and annotation data were not accessible through the public static page during preparation. No user-provided attachment was available to validate. **No imagery, COCO annotation files, test dataset, or trained model is enclosed in this ZIP.** Never represent this scaffold as a validated model or complete dataset.
+This repository provides example datasets, a pretrained staff-gage detection model, and step-by-step instructions to help participants test GRIME-AI before the workshop.
 
-Keep `Staff` as the target label (as in official PEP2026 tutorial); validate category spelling and IDs in any actual COCO JSON. Keep a permanently separate test partition, ideally different days/conditions, with no adjacent frame leakage. A participant's new image used for training must not be scored as an independent test image.
+## Getting Started
 
-Useful verified references:
-- https://github.com/GRIME-Lab/GRIME-AI/wiki/08-SAGE
-- https://github.com/GRIME-Lab/GRIME-AI/wiki/05-Model-Building
-- https://github.com/GRIME-Lab/GRIME-AI/wiki/06-Model-Deployment
-- https://github.com/GRIME-Lab/GRIME-AI/wiki/02-Data-Retrieval
-- https://github.com/GRIME-Lab/GRIME-AI/wiki/03-Data-Preparation
-- https://github.com/GRIME-Lab/GRIME-AI/wiki/Appendix-A-%E2%80%90-PEP2026-Tutorial
+1. Download or clone this repository to your computer.
+2. Make sure the latest **GRIME-AI** is installed and working.
+3. Follow the two guides in the `06_guides/` folder:
 
-### Pre-delivery gate
-- [ ] Training annotations and all referenced source images physically present
-- [ ] COCO JSON parsed, filenames exist, segmentation geometries nonempty, `Staff` category confirmed
-- [ ] Training data pass GRIME-AI `Validate`
-- [ ] Test images withheld from training and from internal validation
-- [ ] Model trained with specified build, checkpoint and metadata included
-- [ ] Predictions and diagnostics manually inspected on test data
-- [ ] ROI Analyzer workflow tested in installed build and screenshot captured
-- [ ] Run through both guides on a clean machine
+   - **[Guide 1 — Annotate, Train, Test, and Run ROI Analyzer](06_guides/01_annotate_train_test_roi.md)**  
+     Learn how to annotate an image in SAGE, train a SAM2 model, test staff-gage detection, and analyze the results using ROI Analyzer.
+
+   - **[Guide 2 — Download, Triage, and Generate a Composite Slice](06_guides/02_download_triage_composite.md)**  
+     Learn how to download COMO imagery, run Image Triage, and create a composite slice image.
+
+## Repository Structure
+
+- `01_training_COCO/` — Example training images and COCO annotations.
+- `02_test_images/` — Images for testing the model.
+- `03_models/` — Pretrained staff-gage model checkpoint.
+- `04_participant_annotations/` — Example image for practicing SAGE annotations.
+- `05_outputs/` — Folder for saving generated results.
+- `06_guides/` — Step-by-step instructions with screenshots.
+
+## Additional Resources
+
+For more information about GRIME-AI, visit the [official GRIME-AI GitHub repository](https://github.com/GRIME-Lab/GRIME-AI).
