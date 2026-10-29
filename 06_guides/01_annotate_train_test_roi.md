@@ -10,31 +10,32 @@
 
 1. In GRIME-AI, open **Tools → SAGE** (or launch `sage` from the activated Conda environment).
 
-![SAGE Interface](./graphics/sage_start.png)
+<img src="./graphics/sage_start.png" alt="SAGE Interface" width="500">
 
 2. Use the image-folder selector in SAGE to open `04_participant_annotations/new_image/`.
 
+<img src="./graphics/sage_1.png" alt="SAGE Interface" width="500">
+
 3. Select the image. Zoom in until the staff gage is clearly visible.
-4. In the **Label Manager**, create or select a label named **`Staff`**. Preserve this exact spelling to match the supplied model-training annotations.
+4. In the **Label Manager**, create a label by putting **`Staff`** in the `New label name` field and hit `Add` button. Preserve this exact spelling to match the supplied model-training annotations.
 
-![Screenshot 03 — Staff label in SAGE](screenshots/Step_03.png)
-5. Choose **Manual Polygon** mode for a straightforward test. Click around the visible outline of the staff gage, placing vertices along its edges. Finish the polygon using the finish/complete control shown in your version. Alternatively, use SAM2-assisted point prompts and **Segment** if your build supports them.
+<img src="./graphics/sage_2.png" alt="SAGE Interface" width="200">
 
-![Screenshot 04 — Drawing the staff-gage mask](screenshots/Step_04.png)
+5. In the `Label Class` panel, click `Staff` to select it as the annotation class. Next, navigate to the `Segmentation Mode` panel and select the `Manual Polygon` tool. Click around the visible outline of the staff gage to place vertices along its edges. Once the entire staff gage is outlined, right-click to finish drawing the polygon.
+
+<img src="./graphics/sage_3.png" alt="SAGE Interface" width="300">
+
 6. Inspect the colored mask overlay. The mask should cover the **gage**, not nearby water, banks, vegetation, shadows, or the mounting post unless part of the intended target.
-7. Correct the outline using the available edit/erase controls. Check the mask's assigned label remains `Staff`.
 
-![Screenshot 05 — Completed annotation overlay](screenshots/Step_05.png)
-8. Click **Save COCO 1.0 (All Images)**. Save to the participant annotation location offered by SAGE and note the output path shown in the confirmation dialog. Keep the original image with the exported annotation dataset; move/copy them together if needed.
+7. Click **Save COCO 1.0 (All Images)**. Save to the participant annotation location offered by SAGE and note the output path shown in the confirmation dialog. Keep the original image with the exported annotation dataset; move/copy them together if needed.
 
-![Screenshot 06 — COCO export confirmation](screenshots/Step_06.png)
-9. Check that the exported dataset contains a readable COCO `.json` file and that its listed image can still be located. Confirm SAGE reports at least **one image and one annotation** saved.
+<img src="./graphics/sage_4.png" alt="SAGE Interface" width="200">
+
+8. Check that the exported dataset contains a readable COCO `.json` file and that its listed image can still be located. Confirm SAGE reports at least **one image and one annotation** saved.
 
 **PASS:** One image has a visually correct `Staff` mask and the COCO export completes successfully.
 
-**If it fails:** Check that the label exists, the polygon was completed, and the destination is writable. Do not proceed until SAGE can reopen or export the annotation.
-
-## Part B — Train a model with both datasets
+## Part B — Train a model with given datasets
 
 1. Return to GRIME-AI. Open **Deep Learning → Train Model**.
 2. In the input/dataset browser, choose the parent directory that allows GRIME-AI to find both the supplied `01_training_COCO/` dataset and the COCO dataset saved in `04_participant_annotations/`. Training-data folders must contain their annotation file and referenced images.
