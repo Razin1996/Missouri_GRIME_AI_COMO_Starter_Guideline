@@ -1,39 +1,127 @@
-# Walkthrough 1 — Annotate one COMO image, train, segment, analyze ROI
+# 01 — Annotate, Train, Test, and Run ROI Analyzer
 
-**Audience:** Missouri learners. **Prerequisites:** current GRIME-AI installation; CUDA NVIDIA GPU for practical SAM2 training/inference; `01_training_COCO/` and `02_test_images/` populated. UI wording below is grounded in the public July 2026 wiki and should be smoke-tested against the installed October build. Recommended first training run: <12 epochs, following PEP2026 tutorial. **An image used to train must not be used as an independent test sample.**
+**GRIME-AI pre-workshop system check — Missouri**
 
-## A. Open / annotate in SAGE
-1. Start GRIME-AI and open **SAGE**.
-2. Click the folder picker in the SAGE image browser; choose `02_test_images/` *only if you will reassign that selected image to training and remove it from test*, or select a separate spare image from the source download.
-3. Click a clear daylight image where the staff gage is visible, preferably one not already represented in the supplied training annotations.
-4. Choose **Manual Polygon** to trace the long narrow gage (reliable geometric ground truth) OR **SAM2 Points** to guide automatic segmentation (left-click on staff gage, right-click on background), then press **Segment** or Enter.
-5. Inspect overlay at high zoom. Exclude river, rocks, ruler shadow and surrounding mounting structure. If needed, add negative prompts or redo a more precise Manual Polygon.
-6. Rename the mask **Staff** by double-clicking the mask name; ensure category matches the supplied COCO training set exactly.
-7. Choose **Save COCO 1.0 (All Images)** and export to `04_participant_annotations/`. Verify COCO JSON and source image files were written.
-8. Place or merge exported participant dataset into the training dataset root as a separate valid COCO image folder; do **not** simply concatenate two COCO JSONs because image/annotation/category IDs can collide. GRIME-AI recursively recognizes multiple dataset folders, so selecting both folders avoids an unsafe JSON merge.
-9. Keep this newly annotated image out of the independent test set.
+**Goal:** Confirm that GRIME-AI can (1) open images in SAGE, (2) create and export one staff-gage annotation, (3) train a model using that new annotation and the supplied training data, (4) apply the model to images not used for training, and (5) run ROI Analyzer and save its results.
 
-## B. Train a staff-gage segmentation model
-10. Open **Deep Learning** (brain icon), **Train Model** tab.
-11. Browse to the common parent containing the original supplied training folder and the participant COCO folder. In **Available Image Folders**, move **both** valid folders to **Selected Image Folders** (use **Move to Right**).
-12. Press **Validate** and resolve any missing image, JSON, or label errors before proceeding.
-13. Select architecture **SAM2** (official docs describe SegFormer-LoRA and YOLOv11-seg as experimental for this workflow).
-14. Set **Label Selection** to **Staff**; use a unique **Site Name**, e.g. `COMO_Missouri_Staff_Demo`.
-15. Keep default optimizer, learning rate, weight decay, blob-filter and batch size initially; select GPU and reduce batch size if CUDA runs out of memory. For the first demo use **8–10 epochs** (PEP2026 recommends fewer than 12). Keep training/validation percentages linked, using available default split; record the split.
-16. Click **Train**. Watch progress and terminal for errors. Find model and metadata under the GRIME-AI Models/SAM2 output path, often in `Documents/GRIME-AI/Models/sam2/` (actual path depends on installation). Copy trained model and metadata to `03_models/`.
+**Estimated input:** The supplied example package, GRIME-AI installed on your computer, and enough free disk space for image outputs and model checkpoints. Training SAM2 is best tested on a CUDA-compatible NVIDIA GPU; CPU training may be very slow. The exact interface may vary slightly by installed GRIME-AI version.
 
-## C. Segment genuinely unseen test imagery
-17. Open **Deep Learning → Segment Images**.
-18. Set **SAM2** architecture. Enable **Save Predicted Masks**, **Copy Original Images**, and **Save Diagnostic Panels**; optionally probability maps.
-19. Keep the default recommended **Mahalanobis** spatial filter for first run.
-20. Under **Select Model**, browse to the newly trained `.torch` model. Confirm metadata target label **Staff** and correct site name.
-21. Set **Output Folder** to `05_outputs/test_inference/`, add ONLY `02_test_images/` under **Image Folders**, choose target label **Staff**, click **Segment Images**.
-22. Inspect diagnostic panels for false positives on rocks, water or markings and missed gage sections. Record filenames where detection fails. If independently annotated test masks are available, compute segmentation IoU/Dice on those; otherwise report *qualitative review only*, not measured accuracy.
+## Part A — Annotate one image in SAGE
 
-## D. Analyze ROI on predictions
-23. Open **ROI Analyzer** in the installed build (the repository documents this feature but the July wiki does not provide reliable click-by-click controls for the latest GUI). Load the segmentation output image collection or the copied originals plus masks, as supported by the current ROI Analyzer interface.
-24. Define a fixed narrow ROI covering the staff-gage region and name it `COMO_staff_gage_ROI`. Check position on at least the first, middle, and last time-series image.
-25. Choose supported per-ROI output (e.g., segmentation coverage/pixel area or available intensity metrics); run on the prediction series, then export the ROI table/CSV to `05_outputs/roi_analysis/`. Do **not** equate detected gage area with water level: level estimation requires calibrated staff coordinates, visible tick references, and a waterline method.
-26. Verify at least one output row per processed image and visually compare changing ROI results with segmentation overlays. Save screenshots of the GUI settings used. **The exact ROI Analyzer controls must be confirmed on the actual installed build before giving this as a foolproof classroom instruction.**
+1. In GRIME-AI, open **Tools → SAGE** (or launch `sage` from the activated Conda environment).
 
-**Participant success criteria:** one SAGE annotation exported as valid COCO, two dataset folders validated, one trained SAM2 model, predictions on untouched test images, one ROI CSV/plot and one documented inspection of a failure case.
+![SAGE Interface](./graphics/sage_start.png)
+
+2. Use the image-folder selector in SAGE to open `04_participant_annotations/new_image/`.
+
+3. Select the image. Zoom in until the staff gage is clearly visible.
+4. In the **Label Manager**, create or select a label named **`Staff`**. Preserve this exact spelling to match the supplied model-training annotations.
+
+![Screenshot 03 — Staff label in SAGE](screenshots/Step_03.png)
+5. Choose **Manual Polygon** mode for a straightforward test. Click around the visible outline of the staff gage, placing vertices along its edges. Finish the polygon using the finish/complete control shown in your version. Alternatively, use SAM2-assisted point prompts and **Segment** if your build supports them.
+
+![Screenshot 04 — Drawing the staff-gage mask](screenshots/Step_04.png)
+6. Inspect the colored mask overlay. The mask should cover the **gage**, not nearby water, banks, vegetation, shadows, or the mounting post unless part of the intended target.
+7. Correct the outline using the available edit/erase controls. Check the mask's assigned label remains `Staff`.
+
+![Screenshot 05 — Completed annotation overlay](screenshots/Step_05.png)
+8. Click **Save COCO 1.0 (All Images)**. Save to the participant annotation location offered by SAGE and note the output path shown in the confirmation dialog. Keep the original image with the exported annotation dataset; move/copy them together if needed.
+
+![Screenshot 06 — COCO export confirmation](screenshots/Step_06.png)
+9. Check that the exported dataset contains a readable COCO `.json` file and that its listed image can still be located. Confirm SAGE reports at least **one image and one annotation** saved.
+
+**PASS:** One image has a visually correct `Staff` mask and the COCO export completes successfully.
+
+**If it fails:** Check that the label exists, the polygon was completed, and the destination is writable. Do not proceed until SAGE can reopen or export the annotation.
+
+## Part B — Train a model with both datasets
+
+1. Return to GRIME-AI. Open **Deep Learning → Train Model**.
+2. In the input/dataset browser, choose the parent directory that allows GRIME-AI to find both the supplied `01_training_COCO/` dataset and the COCO dataset saved in `04_participant_annotations/`. Training-data folders must contain their annotation file and referenced images.
+3. Review **Available Image Folders**. Move the supplied training folder **and** your newly annotated folder into **Selected Image Folders** using **Move to Right**. If only one folder appears, inspect the paths and COCO export rather than silently training on just one.
+
+![Screenshot 07 — Training dataset folder selection](screenshots/Step_07.png)
+4. Click **Validate**. Resolve errors about missing images, unreadable annotations, or mismatched categories. You should be able to confirm that both datasets are included.
+
+![Screenshot 08 — Successful dataset validation](screenshots/Step_08.png)
+5. Under model architecture, select **SAM2**.
+6. Under **Label Selection**, select **`Staff`**.
+7. Set **Site Name** to something unique, for example `Missouri_Staff_SmokeTest`.
+8. For a short functionality test, set **Epochs = 8**. Leave learning rate, optimizer, weight decay, and other advanced options at their defaults unless instructed otherwise by the organizer. Use the default training/validation split and record it; the separate `02_test_images/` folder must remain excluded from training and validation.
+
+![Screenshot 09 — SAM2 model training settings](screenshots/Step_09.png)
+9. Select **GPU/CUDA** if your system supports it. If you receive an out-of-memory error, reduce the **batch size** and retry. A CPU-only run may take substantially longer.
+10. Click **Train** and monitor the training progress and application log. Wait for the run to finish successfully.
+
+![Screenshot 10 — Training completion and checkpoint](screenshots/Step_10.png)
+11. Locate the saved model checkpoint and companion metadata using the path shown in GRIME-AI (often under your GRIME-AI Models directory). Optionally copy both to `03_models/` for easy reference.
+
+**PASS:** Dataset validation succeeds for both inputs, training finishes without an error, and a trained model file plus associated metadata exist.
+
+**If it fails:** Capture the error text and a screenshot. Check that both COCO dataset folders are valid, the `Staff` class is present, and your device has adequate memory.
+
+## Part C — Test the trained model on unseen images
+
+1. Open **Deep Learning → Segment Images**.
+2. Select **SAM2** as the model architecture.
+3. Turn on **Save Predicted Masks**, **Copy Original Images**, and **Save Diagnostic Panels**, if these options are available in your version.
+4. Leave the **SAM2 Spatial Filter** at its recommended default, generally **Mahalanobis**, for this first test.
+5. Under **Select Model → Browse**, choose the checkpoint you trained in Part B. Confirm its metadata loads and shows the `Staff` label.
+
+![Screenshot 11 — Segment Images model selection](screenshots/Step_11.png)
+6. Set **Output Folder** to `05_outputs/test_inference/`.
+7. Use **Add Folder** to select **only** `02_test_images/`. Do not add the training folder or the image newly annotated in Part A.
+
+![Screenshot 12 — Test image and output folder setup](screenshots/Step_12.png)
+8. In **Labels**, select **`Staff`**.
+9. Click **Segment Images**. Wait until processing is complete and check the application log for failures.
+
+![Screenshot 13 — Segmentation progress and outputs](screenshots/Step_13.png)
+10. Open the output folder. Confirm files were created for the processed test images. Examine at least three diagnostic panels or image/mask pairs (or all results if there are fewer than three).
+
+![Screenshot 14 — Predicted staff-gage mask example](screenshots/Step_14.png)
+11. For each checked image, confirm the mask is near the staff gage rather than covering unrelated objects. Record any missed gage or false detections. This is a **visual smoke test**, not a numerical accuracy assessment unless the test images have separate ground-truth masks.
+
+**PASS:** Inference completes on images excluded from training, output files are saved, and the predicted masks can be opened and inspected.
+
+**If it fails:** Verify the model's companion metadata is present, the correct architecture is selected, the images are readable, and the output folder is writable.
+
+## Part D — Test ROI Analyzer
+
+> **Interface check:** ROI Analyzer controls can vary by GRIME-AI build. The sequence below describes the required actions, not unverified button labels. If your build does not offer a named option, record the visible control and take a screenshot rather than guessing.
+
+1. Return to the main GRIME-AI window and open **ROI Analyzer** from the analysis/exploration tools in your installed version.
+2. Load the image collection associated with `05_outputs/test_inference/`. If ROI Analyzer requires original images rather than prediction masks, load the **copied original images** from this output folder (or `02_test_images/`) and use mask outputs as a separate visual reference. Do not assume ROI Analyzer automatically imports segmentation masks.
+
+![Screenshot 15 — ROI Analyzer image selection](screenshots/Step_15.png)
+3. Display the first image. Draw or define **one fixed rectangular or polygonal ROI** surrounding the staff-gage region, using the ROI creation control offered in your version.
+4. Name it `Staff_Gage_ROI` if your interface supports ROI naming, and **save/apply** the ROI definition.
+
+![Screenshot 16 — Staff gage ROI definition](screenshots/Step_16.png)
+5. Move between the first, middle, and last images. Confirm that the same ROI stays aligned with the staff-gage location for a fixed camera. If the camera moved significantly, record that limitation.
+6. Select an available ROI measurement or feature (for example, mean pixel intensity or an available color/texture metric). Run the calculation across the loaded images.
+
+![Screenshot 17 — ROI analysis settings and run](screenshots/Step_17.png)
+7. Export or save the available result table, CSV, or figure to `05_outputs/roi_analysis/`. Record the precise output file and selected metric.
+
+![Screenshot 18 — ROI Analyzer exported results](screenshots/Step_18.png)
+8. Open the saved result and verify that it is not empty and that its image count matches the processed collection, allowing for any explicitly skipped files.
+
+**PASS:** ROI Analyzer loads images, accepts a saved ROI, runs a feature calculation across the collection, and saves a readable result.
+
+**Important:** A basic ROI measurement is not automatically a staff-gage water-level estimate. Do not interpret ROI pixel intensity or total predicted gage area as stage without additional calibration and waterline processing.
+
+## Final pre-workshop checklist
+
+- [ ] GRIME-AI starts successfully. **Version:** __________
+- [ ] SAGE opens the selected image.
+- [ ] One `Staff` annotation is saved to COCO format.
+- [ ] Both supplied and newly created COCO datasets appear in training selection.
+- [ ] **Validate** completes without errors.
+- [ ] SAM2 training finishes. **Model/checkpoint path:** __________
+- [ ] Test inference runs on independent images. **Number of test images:** __________
+- [ ] Predicted masks/diagnostic panels are saved and visually inspected.
+- [ ] ROI Analyzer loads images and accepts a defined ROI.
+- [ ] ROI measurement is exported. **Result path:** __________
+
+**If anything fails:** Send the organizer (1) your GRIME-AI version, (2) the step number, (3) a screenshot of the application, and (4) the complete error message or relevant log excerpt. Do not send only “it isn't working.”
